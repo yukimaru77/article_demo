@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="jp">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+  <div class="content">
+    <h2 class="main_theme">アクセス権</h2>
+    <h3 class="subtitle">パーミッションとは</h3>
+    <p>パーミッションとはアクセス権のことでread(4)、write(2),execute(1)のことです。所有者、所有グループ、その他ユーザーに対して別々のパーミッションを設定できます。</p>
+    <p>読み取り権がファイルにある場合はそのファイルの内容を読み取ることが出来ます。ディレクトリにある場合はディレクトリ内のファイル一覧を表示できます。</p>
+    <p>書き込み権がある場合はファイルの内容を変更することが出来ます。ファイルそのものの削除は出来ません。ディレクトリに書き込み権がある場合はファイルを作成したり削除することが出来ます。</p>
+    <p>実行権がファイルにある場合はそのファイルを実行することが出来ます。ディレクトリに実行権がある場合はそのディレクトリ内にアクセスすることが出来ます。</p>
+  
+  <h3 class="subtitle">プロセスと権限</h3>
+  <p>プロセスとはメモリ上に読み込まれたプログラムです。プログラムはファイルとしてハードディスクに保存されているのでプロセスとは実行されているプログラムと考えていいでしょう。</p>
+  <p>プロセスは実行者の権限を引き継ぎます。UIDやGIDやSUPGID(所属グループからプライマリグループを除いたもの)などです。これによってプロセスがアクセスできる場所が決まってきます。</p>
+  <h3 class="subtitle">特殊な権限(SUID)</h3>
+  <p>SUIDとはSet User IDの略です。付与の仕方はchmodのオプション指定でu+sとするか数値指定で4000を3桁のアクセス権表記にプラスします。ファイルにこの権限を追加すると所有者以外がコマンドを実行してもコマンドのアクセス権が所有者になります。以下がSUIDを持っているファイル例です。所有者の実行権がsになっているのがわかります。ディレクトリにつけた場合は特に意味はありません。</p>
+  <pre class="proguraming"><font color="#4E9A06"><b>yukky@yukky-VirtualBox</b></font>:<font color="#3465A4"><b>~</b></font>$ ls -l &quot;$(which passwd)&quot;
+  -rwsr-xr-x 1 root root 68208  5月 28  2020 <span style="background-color:#CC0000"><font color="#D3D7CF">/usr/bin/passwd</font></span>
+  </pre>
+    <p>passwdコマンドは/etc/passedファイルというrootユーザーしか編集できないファイルを編集するコマンドですがpassedコマンドをrootユーザー以外が実行しても自分のパスワードを変更できるのは上記のようにSUIDがpasswdコマンドについているからです。</p>
+  <h3 class="subtitle">特殊な権限(SGID)</h3>
+  <p>SGIDとはSet Group IDの略です。付与の仕方はchmodのオプション指定でg+sとするか数値指定で2000を3桁のアクセス権表記にプラスします。ファイルにこの権限を付与すると所有グループに属していない者がコマンドを実行してもコマンドのアクセス権が所有グループになります。ディレクトリに付与するとそれ以下に作られるファイルやディレクトリに所有グループが継承される。</p>
+  <pre class="proguraming"><font color="#4E9A06"><b>yukky@yukky-VirtualBox</b></font>:<font color="#3465A4"><b>~</b></font>$ ls -l Sgid 
+  -rw-rwSr-- 1 yukky yukky 0  9月 19 18:10 <span style="background-color:#C4A000"><font color="#2E3436">Sgid</font></span>
+  </pre>
+  <h3 class="subtitle">特殊な権限(スティッキービット)</h3>
+  <p>ファイルの書き換えは制限できても削除はその親ディレクトリの書き込み権に由来するため普通のパーミッションでは制限できません。つまり親ディレクトリ次第ではファイルの書き込み権がなくても削除できたりしてしまうわけです。そこでスティッキービットを追加するとそれ以下のファイルを削除できるのはそのファイルの所有者のみにできます。</p>
+  <p>追加方法は同じようにo+tまたは1000を加えます</p>
+  <pre class="proguraming"><font color="#4E9A06"><b>yukky@yukky-VirtualBox</b></font>:<font color="#3465A4"><b>~</b></font>$ ls -ld /tmp
+  drwxrwxrwt 20 root root 4096  9月 19 18:19 <span style="background-color:#4E9A06"><font color="#2E3436">/tmp</font></span>
+  </pre>
+    <h3 class="subtitle">デフォルトのパーミッション</h3>
+    <p>デフォルトのパーミッションはファイルなら666-umask値、ディレクトリなら777-umask値となります。正確には-umask値ではなくumask値によるマスク処理です。例えばファイルに037のumask値だと単純な引き算で630ではなくマスク処理で640となります。</p>
+    <pre class="proguraming"><font color="#4E9A06"><b>yukky@yukky-VirtualBox</b></font>:<font color="#3465A4"><b>~</b></font>$ touch default
+    <font color="#4E9A06"><b>yukky@yukky-VirtualBox</b></font>:<font color="#3465A4"><b>~</b></font>$ umask 027
+    <font color="#4E9A06"><b>yukky@yukky-VirtualBox</b></font>:<font color="#3465A4"><b>~</b></font>$ touch testfile
+    <font color="#4E9A06"><b>yukky@yukky-VirtualBox</b></font>:<font color="#3465A4"><b>~</b></font>$ mkdir testdir
+    <font color="#4E9A06"><b>yukky@yukky-VirtualBox</b></font>:<font color="#3465A4"><b>~</b></font>$ ls -l
+    -rw-rw-r-- 1 yukky yukky    0  9月 19 18:35 default
+    drwxr-x--- 2 yukky yukky 4096  9月 19 18:35 <font color="#3465A4"><b>testdir</b></font>
+    -rw-r----- 1 yukky yukky    0  9月 19 18:35 testfile
+    </pre>
+</div>
+  
+</body>
+
+<script src="../script.js"></script>
+
+</html>
