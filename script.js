@@ -8,7 +8,7 @@ add_template.innerHTML=`<h1 class="title">ゆきまるの備忘録</h1>
 <nav>
   <ul id="head">
     <li class="study">
-      <a href="/soliloquize/home.html"><span>まえがき</span></a>
+      <a href="/article_demo/home.html"><span>まえがき</span></a>
     </li>
   </ul>
 </nav>`;
@@ -27,7 +27,7 @@ document.getElementsByTagName("body")[0].prepend(add_template);
       add_child_node=document.createElement("div");
       add_child_node.className="theme";
       add_child_node_url=document.createElement("a");
-      add_child_node_url.href="/soliloquize/"+field_of_study_en[i]+"/"+field_of_study_en[i]+doc_num+".html";
+      add_child_node_url.href="/article_demo/"+field_of_study_en[i]+"/"+field_of_study_en[i]+doc_num+".html";
       add_child_node_url.textContent=main_theme[i][j];
       add_child_node.append(add_child_node_url);
       add_node.append(add_child_node);
